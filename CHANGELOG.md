@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/web3-storage/hoverboard/compare/v1.3.0...v1.3.1) (2023-12-20)
+
+
+### Other Changes
+
+* README says to 'npm install' ([#19](https://github.com/web3-storage/hoverboard/issues/19)) ([f7c5328](https://github.com/web3-storage/hoverboard/commit/f7c5328fa14c567482a3dc9f039bc4bc18d4ff87))
+
 ## [1.3.0](https://github.com/web3-storage/hoverboard/compare/v1.2.1...v1.3.0) (2023-07-25)
 
 
