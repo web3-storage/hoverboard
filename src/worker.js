@@ -7,6 +7,7 @@ import { Metrics } from './metrics.js'
 
 /**
  * @typedef {object} Env
+ * @prop {string} CONTENT_CLAIMS - URL to default content claims service
  * @prop {string} DYNAMO_TABLE - block index table name
  * @prop {string} DYNAMO_REGION - block index table region
  * @prop {string} [DYNAMO_ENDPOINT] - override the dynamo api url
@@ -46,6 +47,7 @@ export default {
           console.log({ msg: 'peer:disconnect', peer: remotePeer.toString(), ...metrics })
         })
         const onError = async (/** @type {Error} */ err) => {
+          console.error('[!] error with bitswap', err)
           websocket?.close(418, err.message)
           await libp2p.stop()
           if (!err.message.startsWith('Too many subrequests')) {
@@ -55,7 +57,6 @@ export default {
         enableBitswap(libp2p, bs, onError)
         const listener = getWebSocketListener(transport, listenAddr)
         const res = await listener.handleRequest(request)
-        // @ts-expect-error res will have a raw websocket server on it if worked.
         websocket = res.websocket
         return res
       }
@@ -72,6 +73,7 @@ export default {
         // @ts-expect-error
         websocket.close(418, err.message)
       }
+      console.error('unexpected error', err)
       throw err
     }
   }

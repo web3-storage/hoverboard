@@ -1,9 +1,14 @@
 name = "hoverboard"
 main = "src/worker.js"
-compatibility_date = "2023-06-28"
+compatibility_date = "2023-10-30"
+compatibility_flags = [
+  # https://developers.cloudflare.com/workers/configuration/compatibility-dates/#nodejs-compatibility-flag
+  "nodejs_compat"
+]
 
 # DEV
 [vars]
+CONTENT_CLAIMS = 'https://staging.claims.web3.storage'
 DYNAMO_TABLE = 'staging-ep-v1-blocks-cars-position'
 DYNAMO_REGION = 'us-west-2'
 

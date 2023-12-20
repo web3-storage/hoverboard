@@ -3,7 +3,7 @@ import { toString, fromString } from 'uint8arrays'
 
 /**
  * @typedef {import('multiformats').UnknownLink} UnknownLink
- * @typedef {import('./blocks').Blockstore} Blockstore
+ * @typedef {import('./blocks.js').Blockstore} Blockstore
  */
 
 export class DenyingBlockStore {

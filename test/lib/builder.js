@@ -68,6 +68,7 @@ export class Builder {
   /**
    * @param {import('@web3-storage/upload-client/types').BlobLike|import('@web3-storage/upload-client/types').FileLike[]} input
    * @param {import('@web3-storage/upload-client/types').ShardingOptions} [options]
+   * @returns {Promise<import('multiformats').UnknownLink | null>}
    */
   async add (input, options = {}) {
     console.log('Adding ' + (Array.isArray(input) ? `${input.length} file(s)` : '1 blob') + '...')

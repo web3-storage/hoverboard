@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*.js", "example/*.js"],
+  "include": ["src", "example", "test"],
   "compilerOptions": {
     "types": ["@cloudflare/workers-types"],
     "declaration": true,
@@ -10,12 +10,12 @@
     "checkJs": true,
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": true,
     "lib": ["ES2022"],
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "ES2022"
   }
 }

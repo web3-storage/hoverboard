@@ -7,6 +7,9 @@ import { fromString } from 'uint8arrays/from-string'
 import { DynamoIndex, CachingIndex } from './s3/block-index.js'
 import { DynamoBlockstore } from './s3/blockstore.js'
 import { DenyingBlockStore } from './deny.js'
+import { ContentClaimsBlockstore } from './content-claims/content-claims-blockstore.js'
+import * as Claims from '@web3-storage/content-claims/client'
+import { createBucketFromR2 } from './kv-bucket/kv-bucket-cloudflare.js'
 
 const CAR = 0x202
 
@@ -35,7 +38,15 @@ export async function getBlockstore (env, ctx, metrics) {
   const index = new CachingIndex(dynamo, await caches.open(`dynamo:${env.DYNAMO_TABLE}`), ctx, metrics)
   const s3 = new DynamoBlockstore(index, getS3Clients(env))
   const r2 = new DagHausBlockStore(index, env.CARPARK, s3, metrics)
-  const cached = new CachingBlockStore(r2, await caches.open('blockstore:bytes'), ctx, metrics)
+  const withContentClaims = new CompositeBlockstore([
+    r2,
+    new ContentClaimsBlockstore({
+      url: new URL(env.CONTENT_CLAIMS),
+      read: Claims.read,
+      carpark: createBucketFromR2(env.CARPARK)
+    })
+  ])
+  const cached = new CachingBlockStore(withContentClaims, await caches.open('blockstore:bytes'), ctx, metrics)
   return env.DENYLIST ? new DenyingBlockStore(env.DENYLIST, cached) : cached
 }
 
@@ -222,4 +233,42 @@ function getAwsCredentials (env) {
   const accessKeyId = env.AWS_ACCESS_KEY_ID
   const secretAccessKey = env.AWS_SECRET_ACCESS_KEY
   return accessKeyId && secretAccessKey ? { accessKeyId, secretAccessKey } : undefined
+}
+
+/**
+ * compose several blockstores together into a read-only composition.
+ * methods will call the blockstores in the order they are passed to the constructor.
+ * @implements {Blockstore}
+ */
+export class CompositeBlockstore {
+  /**
+   * @param {Iterable<Blockstore>} blockstores
+   */
+  constructor (blockstores) {
+    this.blockstores = blockstores
+  }
+
+  /**
+   * @param {UnknownLink} cid
+   */
+  async get (cid) {
+    for (const blockstore of this.blockstores) {
+      const got = await blockstore.get(cid)
+      if (got) {
+        return got
+      }
+    }
+  }
+
+  /**
+   * @param {UnknownLink} cid
+   */
+  async has (cid) {
+    for (const blockstore of this.blockstores) {
+      if (await blockstore.has(cid)) {
+        return true
+      }
+    }
+    return false
+  }
 }
